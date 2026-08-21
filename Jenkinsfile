@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS'
+    }
+
     environment {
         VERCEL_TOKEN = credentials('vercel_token')
     }
@@ -8,9 +12,7 @@ pipeline {
     stages {
         stage('Install') {
             steps {
-                nodejs('NodeJS'){
-                    sh 'npm install'
-                }
+                sh 'npm install'
             }
         }
         stage('Test') {
@@ -25,8 +27,17 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'npx vercel --prod --yes --token=$VERCEL_TOKEN'
+                sh 'npx vercel --prod --yes --token=${VERCEL_TOKEN}'
             }
+        }
+    }
+
+    post {
+        failure {
+            echo 'Pipeline failed!'
+        }
+        success {
+            echo 'Deployed successfully to Vercel!'
         }
     }
 }
